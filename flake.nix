@@ -22,7 +22,7 @@
         let
           seabird-archipelago-backend = pkgs.buildGoModule rec {
             pname = "seabird-archipelago-backend";
-            version = "0.1.0-dev";
+            version = "0.1.0";
             src = ./.;
             vendorHash = "sha256-S8xXJSP31OpMA/gpZ9etPV6dqK4TBZC18zPJJ6qS8DA=";
             subPackages = [ "cmd/${pname}" ];
