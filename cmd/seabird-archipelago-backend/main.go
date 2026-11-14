@@ -107,6 +107,12 @@ func loadConfig() (backend.Config, error) {
 	}
 	cfg.DeathLink = deathLink
 
+	chat, err := strconv.ParseBool(envDefault("ARCHIPELAGO_CHAT", "true"))
+	if err != nil {
+		errs = append(errs, fmt.Errorf("ARCHIPELAGO_CHAT: %w", err))
+	}
+	cfg.Chat = chat
+
 	return cfg, errors.Join(errs...)
 }
 

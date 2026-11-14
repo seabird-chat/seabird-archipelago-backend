@@ -129,6 +129,7 @@ func TestConnectRoom(t *testing.T) {
 			CommandPrefix: ".",
 			Items:         ItemProgression,
 			DeathLink:     true,
+			Chat:          true,
 		},
 		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 		http:   http.DefaultClient,
@@ -182,6 +183,39 @@ func TestConnectRoom(t *testing.T) {
 
 	assert.ErrorContains(t, b.say(ctx, "room", "!release"), "server commands")
 	assert.ErrorContains(t, b.say(ctx, "elsewhere", "hi"), "unknown channel")
+}
+
+func TestChatDisabled(t *testing.T) {
+	srv := aptest.NewServer(t, func(p *aptest.Peer) {
+		p.Handshake("seed1", testGames, 3,
+			map[int]string{1: "Alice", 2: "Bob", 3: "seabird"},
+			map[int]string{1: "Game A", 2: "Game A", 3: "Game A"})
+		p.Expect("SetNotify")
+		p.Send(chat(1, "Alice", ".roll 2d6"), chat(1, "Alice", "hi"), itemSend(10, 1))
+		p.Wait()
+	})
+
+	b := &Backend{
+		cfg:    Config{URL: srv.Addr, Slot: "seabird", Channel: "room", CommandPrefix: ".", Items: ItemAll},
+		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+		http:   http.DefaultClient,
+		events: make(chan *pb.ChatEvent, 64),
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	t.Cleanup(cancel)
+	go func() { _ = b.connectRoom(ctx) }()
+
+	select {
+	case e := <-b.events:
+		msg := e.GetMessage()
+		require.NotNil(t, msg)
+		assert.Equal(t, "Alice sent Hookshot to Bob (Boss Chest)", msg.Text, "chat is skipped")
+	case <-ctx.Done():
+		t.Fatal("timed out waiting for event")
+	}
+
+	assert.ErrorContains(t, b.say(ctx, "room", "hello"), "chat is disabled")
 }
 
 func TestHintTrackerReconnect(t *testing.T) {

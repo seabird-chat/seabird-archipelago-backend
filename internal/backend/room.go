@@ -198,6 +198,9 @@ func (b *Backend) handlePrint(state *roomState, msg archipelago.PrintJSON) {
 
 	switch msg.Type {
 	case archipelago.PrintChat:
+		if !b.cfg.Chat {
+			return
+		}
 		if msg.Team == s.Team && msg.Slot == s.Slot && b.echoes.take(msg.Message) {
 			return
 		}

@@ -51,6 +51,9 @@ type Config struct {
 	CommandPrefix string
 	Items         ItemFilter
 	DeathLink     bool
+	// Chat relays player chat into seabird and lets seabird chat in the
+	// room. Game events are relayed either way.
+	Chat bool
 
 	Logger *slog.Logger
 }
@@ -252,6 +255,9 @@ func sanitize(line string) string {
 func (b *Backend) say(ctx context.Context, channel, text string) error {
 	if channel != b.cfg.Channel {
 		return fmt.Errorf("unknown channel %q", channel)
+	}
+	if !b.cfg.Chat {
+		return errors.New("chat is disabled for this archipelago room")
 	}
 	lines, err := sayLines(text)
 	if err != nil {

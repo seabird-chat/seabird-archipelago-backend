@@ -27,7 +27,9 @@ server only sends hint messages to the players involved.
 
 Messages from seabird go into the room as chat from the configured slot.
 Multi-line messages are sent as one chat line each. Private messages,
-channel changes, and topics are not supported.
+channel changes, and topics are not supported. Setting
+`ARCHIPELAGO_CHAT=false` turns chat off in both directions and leaves only
+the game events.
 
 The item filter works on Archipelago's item classes. `progression_skip_balancing`
 is progression that the generator's progression balancing step is told to
@@ -69,6 +71,7 @@ working directory is loaded too, if one exists.
 | `ARCHIPELAGO_COMMAND_PREFIX` | `.` | Can't start with `!` |
 | `ARCHIPELAGO_ITEM_FILTER` | all classes | Comma list of `progression`, `progression_skip_balancing`, `useful`, `filler`, `trap`; applies to sends and hints |
 | `ARCHIPELAGO_DEATHLINK` | `true` | Announce deathlinks |
+| `ARCHIPELAGO_CHAT` | `true` | Relay player chat and allow seabird to chat in the room |
 | `LOG_FORMAT` | `json` | `json`, `pretty`, or `text` |
 | `LOG_LEVEL` | `info` | |
 
