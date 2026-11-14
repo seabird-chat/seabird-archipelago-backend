@@ -94,7 +94,8 @@ func loadConfig() (backend.Config, error) {
 		errs = append(errs, errors.New("one of ARCHIPELAGO_ROOM or ARCHIPELAGO_URL is required"))
 	}
 
-	items, err := backend.ParseItemFilter(envDefault("ARCHIPELAGO_ITEM_FILTER", "progression,useful,filler,trap"))
+	items, err := backend.ParseItemFilter(envDefault("ARCHIPELAGO_ITEM_FILTER",
+		"progression,progression_skip_balancing,useful,filler,trap"))
 	if err != nil {
 		errs = append(errs, fmt.Errorf("ARCHIPELAGO_ITEM_FILTER: %w", err))
 	}

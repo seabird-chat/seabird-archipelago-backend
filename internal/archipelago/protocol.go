@@ -7,11 +7,14 @@ package archipelago
 
 import "encoding/json"
 
-// Item flags from NetworkItem.flags.
+// Item flags from NetworkItem.flags. SkipBalancing and Deprioritized only
+// qualify progression items.
 const (
-	FlagProgression = 0b001
-	FlagUseful      = 0b010
-	FlagTrap        = 0b100
+	FlagProgression   = 0b00001
+	FlagUseful        = 0b00010
+	FlagTrap          = 0b00100
+	FlagSkipBalancing = 0b01000
+	FlagDeprioritized = 0b10000
 )
 
 // Client tags sent in Connect.

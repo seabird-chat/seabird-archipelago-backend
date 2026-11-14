@@ -12,18 +12,22 @@ type ItemFilter uint8
 
 const (
 	ItemProgression ItemFilter = 1 << iota
+	// Progression that progression balancing leaves alone, usually because
+	// it's plentiful (currency, shards) or meant to be spread evenly.
+	ItemProgressionSkipBalancing
 	ItemUseful
 	ItemFiller
 	ItemTrap
 
-	ItemAll = ItemProgression | ItemUseful | ItemFiller | ItemTrap
+	ItemAll = ItemProgression | ItemProgressionSkipBalancing | ItemUseful | ItemFiller | ItemTrap
 )
 
 var itemClassNames = map[string]ItemFilter{
-	"progression": ItemProgression,
-	"useful":      ItemUseful,
-	"filler":      ItemFiller,
-	"trap":        ItemTrap,
+	"progression":                ItemProgression,
+	"progression_skip_balancing": ItemProgressionSkipBalancing,
+	"useful":                     ItemUseful,
+	"filler":                     ItemFiller,
+	"trap":                       ItemTrap,
 }
 
 // ParseItemFilter parses a comma separated list of item classes.
@@ -36,20 +40,38 @@ func ParseItemFilter(s string) (ItemFilter, error) {
 		}
 		class, ok := itemClassNames[name]
 		if !ok {
-			return 0, fmt.Errorf("unknown item class %q (want progression, useful, filler, or trap)", name)
+			return 0, fmt.Errorf("unknown item class %q (want progression, progression_skip_balancing, useful, filler, or trap)", name)
 		}
 		f |= class
 	}
 	return f, nil
 }
 
-// Allows reports whether an item with the given NetworkItem flags should be
-// announced. Items with several flags match if any of them is enabled.
-func (f ItemFilter) Allows(flags int) bool {
-	if flags == 0 {
-		return f&ItemFiller != 0
+// classes maps NetworkItem flags to item classes. Items with none of the
+// progression, useful, or trap flags are filler, whatever else is set.
+func classes(flags int) ItemFilter {
+	var c ItemFilter
+	if flags&archipelago.FlagProgression != 0 {
+		if flags&archipelago.FlagSkipBalancing != 0 {
+			c |= ItemProgressionSkipBalancing
+		} else {
+			c |= ItemProgression
+		}
 	}
-	return (flags&archipelago.FlagProgression != 0 && f&ItemProgression != 0) ||
-		(flags&archipelago.FlagUseful != 0 && f&ItemUseful != 0) ||
-		(flags&archipelago.FlagTrap != 0 && f&ItemTrap != 0)
+	if flags&archipelago.FlagUseful != 0 {
+		c |= ItemUseful
+	}
+	if flags&archipelago.FlagTrap != 0 {
+		c |= ItemTrap
+	}
+	if c == 0 {
+		c = ItemFiller
+	}
+	return c
+}
+
+// Allows reports whether an item with the given NetworkItem flags should be
+// announced. Items in several classes match if any of them is enabled.
+func (f ItemFilter) Allows(flags int) bool {
+	return f&classes(flags) != 0
 }

@@ -29,6 +29,13 @@ Messages from seabird go into the room as chat from the configured slot.
 Multi-line messages are sent as one chat line each. Private messages,
 channel changes, and topics are not supported.
 
+The item filter works on Archipelago's item classes. `progression_skip_balancing`
+is progression that the generator's progression balancing step is told to
+leave in place, usually because there are lots of them (currency, shards)
+or because they should stay spread out (some goal items). Filtering it out
+cuts most of the noise from progression announcements without hiding the
+items that unlock things.
+
 ## Finding the room
 
 Rooms on archipelago.gg shut down when nobody is playing and can come back
@@ -60,7 +67,7 @@ working directory is loaded too, if one exists.
 | `ARCHIPELAGO_PASSWORD` | | Room password |
 | `ARCHIPELAGO_CHANNEL` | `room` | Seabird channel ID |
 | `ARCHIPELAGO_COMMAND_PREFIX` | `.` | Can't start with `!` |
-| `ARCHIPELAGO_ITEM_FILTER` | `progression,useful,filler,trap` | Item classes to announce, for both sends and hints |
+| `ARCHIPELAGO_ITEM_FILTER` | all classes | Comma list of `progression`, `progression_skip_balancing`, `useful`, `filler`, `trap`; applies to sends and hints |
 | `ARCHIPELAGO_DEATHLINK` | `true` | Announce deathlinks |
 | `LOG_FORMAT` | `json` | `json`, `pretty`, or `text` |
 | `LOG_LEVEL` | `info` | |

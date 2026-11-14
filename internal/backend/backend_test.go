@@ -13,7 +13,7 @@ func TestParseItemFilter(t *testing.T) {
 		want    ItemFilter
 		wantErr bool
 	}{
-		{in: "progression,useful,filler,trap", want: ItemAll},
+		{in: "progression,progression_skip_balancing,useful,filler,trap", want: ItemAll},
 		{in: "progression", want: ItemProgression},
 		{in: " Useful , TRAP ", want: ItemUseful | ItemTrap},
 		{in: "", want: 0},
@@ -46,6 +46,13 @@ func TestItemFilterAllows(t *testing.T) {
 		{"progression and useful matches either", ItemUseful, 0b011, true},
 		{"trap", ItemTrap, 0b100, true},
 		{"trap blocked", ItemAll &^ ItemTrap, 0b100, false},
+		{"skip balancing is its own class", ItemProgression, 0b01001, false},
+		{"skip balancing allowed", ItemProgressionSkipBalancing, 0b01001, true},
+		{"skip balancing useful matches useful", ItemUseful, 0b01011, true},
+		{"deprioritized is still progression", ItemProgression, 0b10001, true},
+		{"stray skip balancing is filler", ItemFiller, 0b01000, true},
+		{"stray deprioritized is filler", ItemFiller, 0b10000, true},
+		{"stray flags not progression", ItemProgression | ItemProgressionSkipBalancing, 0b11000, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
