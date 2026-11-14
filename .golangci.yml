@@ -1,0 +1,13 @@
+# golangci-lint settings for `just lint`.
+version: "2"
+
+linters:
+  settings:
+    errcheck:
+      exclude-functions:
+        - (*github.com/seabird-chat/seabird-archipelago-backend/internal/archipelago.Conn).Close
+        - (*github.com/seabird-chat/seabird-go.ChatIngestClient).Close
+        - (*github.com/seabird-chat/seabird-go.SeabirdChatIngestStream).Close
+        - (*github.com/coder/websocket.Conn).CloseNow
+        - (io.Closer).Close
+        - fmt.Fprintln
